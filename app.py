@@ -1,15 +1,24 @@
 import streamlit as st
 import numpy as np
+import pandas as pd
 import joblib
 
-# Page config
+# ------------------ PAGE CONFIG ------------------
 st.set_page_config(
     page_title="ML Prediction App",
     page_icon="🤖",
     layout="centered"
 )
 
-# Custom CSS for styling
+# ------------------ LOAD MODEL ------------------
+@st.cache_resource
+def load_model():
+    model = joblib.load("model.pkl")
+    return model
+
+model = load_model()
+
+# ------------------ CUSTOM STYLE ------------------
 st.markdown("""
     <style>
         .main {
@@ -21,7 +30,6 @@ st.markdown("""
             border-radius: 10px;
             height: 3em;
             width: 100%;
-            font-size: 16px;
         }
         .stTextInput>div>div>input {
             border-radius: 10px;
@@ -29,36 +37,35 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Title
+# ------------------ HEADER ------------------
 st.title("🤖 Machine Learning Prediction App")
-st.write("Enter input values below to get predictions from your trained model.")
+st.write("Enter the input values below to get predictions.")
 
-# Load model
-@st.cache_resource
-def load_model():
-    return joblib.load("model.pkl")
+st.divider()
 
-model = load_model()
+# ------------------ INPUT FIELDS ------------------
+# ⚠️ CHANGE THESE BASED ON YOUR MODEL FEATURES
+col1, col2 = st.columns(2)
 
-# Input section (modify based on your model features)
-st.subheader("📥 Input Features")
+with col1:
+    feature1 = st.number_input("Feature 1", value=0.0)
+    feature2 = st.number_input("Feature 2", value=0.0)
 
-# Example inputs (CHANGE based on your model)
-feature1 = st.number_input("Feature 1", value=0.0)
-feature2 = st.number_input("Feature 2", value=0.0)
-feature3 = st.number_input("Feature 3", value=0.0)
+with col2:
+    feature3 = st.number_input("Feature 3", value=0.0)
+    feature4 = st.number_input("Feature 4", value=0.0)
 
-# Prediction button
+# ------------------ PREDICTION ------------------
 if st.button("🔍 Predict"):
     try:
-        input_data = np.array([[feature1, feature2, feature3]])
+        input_data = np.array([[feature1, feature2, feature3, feature4]])
         prediction = model.predict(input_data)
 
-        st.success(f"✅ Prediction Result: {prediction[0]}")
+        st.success(f"✅ Prediction: {prediction[0]}")
 
     except Exception as e:
-        st.error(f"❌ Error: {e}")
+        st.error(f"⚠️ Error: {e}")
 
-# Footer
-st.markdown("---")
-st.markdown("Made with ❤️ using Streamlit")
+# ------------------ FOOTER ------------------
+st.divider()
+st.caption("Built with ❤️ using Streamlit")
